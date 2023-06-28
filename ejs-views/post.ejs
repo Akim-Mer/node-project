@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Node.js Course | <%= title %></title>
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/main.css">
-</head>
+<%- include('./partials/head.ejs') %>
+
 <body>
-  <%- include('./partials/nav.ejs') %>
-  <article>
-    <div class="info">
-      <span>05.05.2021</span>
-      <span>Yauhen</span>
-    </div>
-    <h1>Post title</h1>
-    <p>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente quidem provident, dolores, vero laboriosam nemo mollitia impedit unde fugit sint eveniet, minima odio ipsum sed recusandae aut iste aspernatur dolorem.
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente quidem provident, dolores, vero laboriosam nemo mollitia impedit unde fugit sint eveniet, minima odio ipsum sed recusandae aut iste aspernatur dolorem.
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente quidem provident, dolores, vero laboriosam nemo mollitia impedit unde fugit sint eveniet, minima odio ipsum sed recusandae aut iste aspernatur dolorem.
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente quidem provident, dolores, vero laboriosam nemo mollitia impedit unde fugit sint eveniet, minima odio ipsum sed recusandae aut iste aspernatur dolorem.
-    </p>
-  </article>
+	<%- include('./partials/nav.ejs') %>
+	<article>
+		<div class="info">
+			<span><%= post.createdAt.toLocaleDateString()
+		%></span>
+			<span><%= post.author %></span>
+		</div>
+		<h1><%= post.title %></h1>
+		<p>
+			<%= post.text %>
+		</p>
+		<a href="/edit/<%= post.id %>" class="btn-edit">
+			<i class="fas fa-edit"></i>
+		</a>
+		<button class="btn-delete" data-id="<%= post.id %>">
+			<i class="fas fa-trash-alt" data-id="<%= post.id %>"></i>
+		</button>
+	</article>
 </body>
+
+<script>
+	document.addEventListener('click', (e) => {
+		const id = e.target?.dataset?.id || null;
+		if (id) {
+			fetch(`/posts/${id}`, {
+				method: 'DELETE',
+			}).then(() => {
+				window.location.href = '/posts';
+			})
+		}
+	})
+</script>
+
 </html>

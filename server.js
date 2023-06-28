@@ -1,6 +1,13 @@
 const express = require('express');
-const path = require('path');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+const methodOverride = require('method-override');
+
+const postApiRoutes = require('./routes/api-post-routes')
+const postRoutes = require('./routes/post-routes');
+const contactRoutes = require('./routes/contact-routes');
+const createPath = require('./helpers/create-path')
+
 
 const app = express();
 
@@ -8,49 +15,39 @@ app.set('view engine', 'ejs');
 
 const PORT = 3000;
 
-const createPath = (page) => path.resolve(__dirname, 'ejs-views', `${page}.ejs`);
+const db = 'mongodb://localhost:27017/node-blog';
+
+mongoose
+	.connect(db)
+	.then((res)=> console.log('Connect to DBase'))
+	.catch((error)=> console.log(error));
+
+
 
 app.listen(PORT, (error) => {
-  error ? console.log(error) : console.log(`listening port ${PORT}`);
+    error ? console.log(error) : console.log(`listening port ${PORT}`);
 });
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+app.use(
+    morgan(':method :url :status :res[content-length] - :response-time ms')
+);
+
+app.use(express.urlencoded({extended: false}));
+
+app.use(methodOverride('_method'));
+
+app.get('/', (req, res) => {
+    const title = 'Home';
+    res.render(createPath('index'), { title });
+});
+
+app.use(postRoutes);
+app.use(contactRoutes);
+app.use(postApiRoutes);
 
 app.use(express.static('styles'));
 
-app.get('/', (req, res) => {
-  const title = 'Home';
-  res.render(createPath('index'), { title });
-});
-
-app.get('/contacts', (req, res) => {
-  const title = 'Contacts';
-  const contacts = [
-    { name: 'YouTube', link: 'http://youtube.com/YauhenKavalchuk' },
-    { name: 'Twitter', link: 'http://github.com/YauhenKavalchuk' },
-    { name: 'GitHub', link: 'http://twitter.com/YauhenKavalchuk' },
-  ];
-  res.render(createPath('contacts'), { contacts, title });
-});
-
-app.get('/posts/:id', (req, res) => {
-  const title = 'Post';
-  res.render(createPath('post'), { title });
-});
-
-app.get('/posts', (req, res) => {
-  const title = 'Posts';
-  res.render(createPath('posts'), { title });
-});
-
-app.get('/add-post', (req, res) => {
-  const title = 'Add Post';
-  res.render(createPath('add-post'), { title });
-});
-
 app.use((req, res) => {
-  const title = 'Error Page';
-  res
-    .status(404)
-    .render(createPath('error'), { title });
+    const title = 'Error Page';
+    res.status(404).render(createPath('error'), { title });
 });
